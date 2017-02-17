@@ -6,7 +6,7 @@ import tkinter.messagebox
 def changeLevel():
     print ("Amater")
 
-#change git
+
 def showmessage():
     tkinter.messagebox.showinfo('About Tic Tac Toe','Made by Lalit Som\n version 1.0.0\nHow to play: Go check wikipedia')
 

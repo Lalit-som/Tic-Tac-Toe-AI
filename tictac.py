@@ -1,5 +1,8 @@
 from tkinter import *
 import tkinter.messagebox
+import _thread
+import time
+
 
 
 #.......functions...........
@@ -58,27 +61,30 @@ def user_clicked(_r,_c):
     global g_gameEnd
     if(g_gameEnd==0 and g_game_grid[_r][_c] ==-1 ):
         g_game_grid[_r][_c] = g_player1
-        put_piece(g_player1,_r,_c)
+        put_piece(g_player1,_r,_c,0)
         _stat = check_game_status()
         if(_stat==-1):
             _move = runai(g_player1)
             g_game_grid[_move[0]][_move[1]] = int(not(g_player1))
-            put_piece(int(not(g_player1)),_move[0],_move[1])
-            _stat = check_game_status()
+            _thread.start_new_thread( put_piece,(int(not(g_player1)), _move[0],_move[1],0.2))
+
         else:
             print (check_game_status())
             g_gameEnd = 1
         _stat = check_game_status()
         if(_stat!=-1):
-            g_gameEnd=1    
+            g_gameEnd=1
 
 
 
-def put_piece(_player,_r,_c):
+def put_piece(_player,_r,_c,_delay):
+    print(_player,_r,_c)
+    time.sleep(_delay)
     if(_player == 0):
         _image = bgcanvas.create_image(img_pos_x +(_c*offset),img_pos_y + (_r*offset),image=object_img_red)
     else:
         _image = bgcanvas.create_image(img_pos_x +(_c*offset),img_pos_y + (_r*offset),image=object_img_blue)
+
 
 
 def check_game_status():
@@ -94,10 +100,10 @@ def check_game_status():
     if( g_game_grid[0][0] == g_game_grid[1][1] and g_game_grid[1][1] == g_game_grid[2][2] and g_game_grid[2][2] != -1  ):
         return g_game_grid[2][2]
 
-    if( g_game_grid[0][2] == g_game_grid[1][1] and g_game_grid[1][1] == g_game_grid[2][2] and g_game_grid[2][0] != -1  ):
+    if( g_game_grid[0][2] == g_game_grid[1][1] and g_game_grid[1][1] == g_game_grid[2][0] and g_game_grid[2][0] != -1  ):
         return g_game_grid[2][0]
 
-    print (g_game_grid)
+
     return -1
 
 
@@ -124,6 +130,16 @@ def runai(_user):
     for i in range(3):
         if(g_game_grid[(i+1)%3][(i+1)%3]==_ai and g_game_grid[(i+2)%3][(i+2)%3]==_ai and g_game_grid[(i+3)%3][(i+3)%3]!=_user ):
                 return (i+3)%3,(i+3)%3
+
+
+
+
+
+
+
+#.....default case.. random put............................
+    if g_game_grid[1][1]==-1:
+        return 1,1
 
     for i in range(3):
         for j in range(3):

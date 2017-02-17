@@ -61,10 +61,16 @@ def user_clicked(_r,_c):
         put_piece(g_player1,_r,_c)
         _stat = check_game_status()
         if(_stat==-1):
-            runai(g_player1)
+            _move = runai(g_player1)
+            g_game_grid[_move[0]][_move[1]] = int(not(g_player1))
+            put_piece(int(not(g_player1)),_move[0],_move[1])
+            _stat = check_game_status()
         else:
             print (check_game_status())
             g_gameEnd = 1
+        _stat = check_game_status()
+        if(_stat!=-1):
+            g_gameEnd=1    
 
 
 
@@ -91,6 +97,7 @@ def check_game_status():
     if( g_game_grid[0][2] == g_game_grid[1][1] and g_game_grid[1][1] == g_game_grid[2][2] and g_game_grid[2][0] != -1  ):
         return g_game_grid[2][0]
 
+    print (g_game_grid)
     return -1
 
 
@@ -100,12 +107,28 @@ def check_game_status():
 
 
 def runai(_user):
-    _ai = 1
-    if(_user == 1):
-        _ai =1
+    global g_game_grid
+    _ai = int(not _user)
+
+    for i in range(3):
+        for j in range(3):
+            if(g_game_grid[i][(j+1)%3]==_ai and g_game_grid[i][(j+2)%3]==_ai and g_game_grid[i][(j+3)%3]!=_user ):
+                return i,(j+3)%3
 
 
+    for i in range(3):
+        for j in range(3):
+            if(g_game_grid[(j+1)%3][i]==_ai and g_game_grid[(j+2)%3][i]==_ai and g_game_grid[(j+3)%3][i]!=_user ):
+                return (j+3)%3,i
 
+    for i in range(3):
+        if(g_game_grid[(i+1)%3][(i+1)%3]==_ai and g_game_grid[(i+2)%3][(i+2)%3]==_ai and g_game_grid[(i+3)%3][(i+3)%3]!=_user ):
+                return (i+3)%3,(i+3)%3
+
+    for i in range(3):
+        for j in range(3):
+            if g_game_grid[i][j]==-1:
+                return i,j
 
 
 

@@ -5,6 +5,13 @@ import time
 
 
 
+# Author Lalit Som............
+# github.com/Lalit-som
+
+
+
+
+
 #.......functions...........
 def changeLevel():
     print ("Amater")
@@ -137,7 +144,7 @@ def runai(_user):
 
 
 
-#.....default case.. random put............................
+#.....default case..ai choose  random location ............................
     if g_game_grid[1][1]==-1:
         return 1,1
 
@@ -203,7 +210,7 @@ menu_bar.add_command(label="About", command=showmessage)
 
 
 
-#.............options frame.............
+#.............options frame left side part of main wnd.............
 
 option_frame = Frame(mainWnd, bg="#21252b", height="450", width="170",highlightthickness=1,highlightbackground ="#1a181f", relief=RAISED,pady =30 )
 option_frame.pack(side=LEFT, fill=None, expand=False)
@@ -235,14 +242,14 @@ game_stat.pack(side=BOTTOM);
 
 
 
-#.............game frame.............
+#.............game frame right side part of main window or main gui.............
 
 game_frame = Frame(mainWnd, bg="#282c34", height="450", width="450", relief=SUNKEN)
 game_frame.pack_propagate(0)
 game_frame.pack(side=LEFT)
 
 
-#.................main canvas..............
+#.................main canvas where images get drawn..............
 canvas_size =450
 bgcanvas = Canvas(game_frame, width=canvas_size,height=canvas_size,highlightthickness=0,bg="#282c34")
 bgcanvas.pack()
@@ -262,7 +269,7 @@ img_pos_y=100
 
 offset = 126
 
-#...................game vars....................
+#...................game variables....................
 
 g_player1 =0 #red one
 g_winner =-1

@@ -13,8 +13,23 @@ import time
 
 
 #.......functions...........
-def changeLevel():
-    print ("Amater")
+def changeLevel(_var,_menu):
+    global g_menu_level
+    g_menu_level = _var
+    _levels = ["Moron","Pro","Legend"]
+
+    _menu.entryconfigure(0,label=_levels[0])
+    _menu.entryconfigure(1,label=_levels[1])
+    _menu.entryconfigure(2,label=_levels[2])
+
+
+    _menu.entryconfigure(_var,label=_levels[_var]+"*")
+    level_info.config(text ="Level : "+_levels[_var] )
+    reset_game(0)
+
+
+
+
 
 
 def showmessage():
@@ -192,9 +207,11 @@ mainWnd.config(menu = menu_bar)
 
 submenu_levels = Menu(menu_bar, tearoff=False)
 menu_bar.add_cascade(label="Levels",menu=submenu_levels)
-submenu_levels.add_command(label="*Moron", command = changeLevel);
-submenu_levels.add_command(label="Pro", command = changeLevel);
-submenu_levels.add_command(label="Legend", command = changeLevel);
+
+
+submenu_levels.add_command(label="Moron", command = lambda: changeLevel(0,submenu_levels));
+submenu_levels.add_command(label="Pro",command = lambda: changeLevel(1,submenu_levels));
+submenu_levels.add_command(label="Legend", command = lambda: changeLevel(2,submenu_levels));
 
 
 
@@ -219,7 +236,7 @@ option_frame.pack_propagate(0)
 game_name = Label(option_frame, text="T I C  T A C  T O E\n",bg ="#21252b",fg="#e97263", font=("Arial","13","bold"))
 game_name.pack();
 
-restart_btn = Button(option_frame, text="PLAY", font=("Helvetica","17","bold"),bg ="#4285fa", fg ="white",bd=0)
+restart_btn = Button(option_frame, text="RESET", font=("Helvetica","17","bold"),bg ="#4285fa", fg ="white",bd=0)
 restart_btn.pack()
 restart_btn.config(height=1, width=7)
 restart_btn.bind('<Button-1>', reset_game)
@@ -276,9 +293,10 @@ g_winner =-1
 g_gameEnd=0
 g_chance=0
 g_game_grid = [[-1] *3 for n in range(3)] #initial state
-g_menu_level = 1
+g_menu_level = 0
 g_menu_playas = 0
 
+changeLevel(0,submenu_levels)
 
 #.....................................
 mainWnd.resizable(width=False, height =False)

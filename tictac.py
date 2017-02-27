@@ -29,6 +29,8 @@ def changeLevel(_var,_menu):
 
 
 
+def guimsg_set_gamewinner(_str):
+    game_stat.config(text =_str)
 
 
 
@@ -74,7 +76,7 @@ def reset_game(event):
     board_img = bgcanvas.create_image(b_image_pos,b_image_pos,image=object_img_board)
     g_menu_level = 1
     g_menu_playas = 0
-
+    guimsg_set_gamewinner("Game is Running...")
 
 
 
@@ -85,6 +87,7 @@ def user_clicked(_r,_c):
         g_game_grid[_r][_c] = g_player1
         put_piece(g_player1,_r,_c,0)
         _stat = check_game_status()
+        print (_stat)
         if(_stat==-1):
             _move = runai(g_player1)
             g_game_grid[_move[0]][_move[1]] = int(not(g_player1))
@@ -94,6 +97,14 @@ def user_clicked(_r,_c):
             print (check_game_status())
             g_gameEnd = 1
         _stat = check_game_status()
+        if(_stat==5):
+            guimsg_set_gamewinner("Draw")
+        if(_stat==int(not(g_player1))):
+            guimsg_set_gamewinner("You Loose.. Bitch")
+        if(_stat==g_player1):
+            guimsg_set_gamewinner("YOU win..")
+
+
         if(_stat!=-1):
             g_gameEnd=1
 
@@ -124,12 +135,12 @@ def check_game_status():
 
     if( g_game_grid[0][2] == g_game_grid[1][1] and g_game_grid[1][1] == g_game_grid[2][0] and g_game_grid[2][0] != -1  ):
         return g_game_grid[2][0]
-
-
-    return -1
-
-
-
+#.......................draw...............
+    for i in range(3):
+        for j in range(3):
+            if(g_game_grid[i][j]==-1):
+                return -1
+    return 5
 
 
 
@@ -138,35 +149,85 @@ def runai(_user):
     global g_game_grid
     _ai = int(not _user)
 
-    for i in range(3):
-        for j in range(3):
-            if(g_game_grid[i][(j+1)%3]==_ai and g_game_grid[i][(j+2)%3]==_ai and g_game_grid[i][(j+3)%3]!=_user ):
-                return i,(j+3)%3
+#..........check if I can Win in this move
+    if(g_menu_level>=0):
+        for i in range(3):
+            for j in range(3):
+                if(g_game_grid[i][(j+1)%3]==_ai and g_game_grid[i][(j+2)%3]==_ai and g_game_grid[i][(j+3)%3]!=_user ):
+                    return i,(j+3)%3
+
+        for i in range(3):
+            for j in range(3):
+                if(g_game_grid[(j+1)%3][i]==_ai and g_game_grid[(j+2)%3][i]==_ai and g_game_grid[(j+3)%3][i]!=_user ):
+                    return (j+3)%3,i
 
 
-    for i in range(3):
-        for j in range(3):
-            if(g_game_grid[(j+1)%3][i]==_ai and g_game_grid[(j+2)%3][i]==_ai and g_game_grid[(j+3)%3][i]!=_user ):
-                return (j+3)%3,i
+        for i in range(3):
+            if(g_game_grid[(i+1)%3][(i+1)%3]==_ai and g_game_grid[(i+2)%3][(i+2)%3]==_ai and g_game_grid[(i+3)%3][(i+3)%3]!=_user ):
+                    return (i+3)%3,(i+3)%3
 
-    for i in range(3):
-        if(g_game_grid[(i+1)%3][(i+1)%3]==_ai and g_game_grid[(i+2)%3][(i+2)%3]==_ai and g_game_grid[(i+3)%3][(i+3)%3]!=_user ):
-                return (i+3)%3,(i+3)%3
-
-
+                    #.........diagonal 1
+        for i in range(3):
+            if(g_game_grid[(i+1)%3][(i+1)%3]==_user and g_game_grid[(i+2)%3][(i+2)%3]==_user and g_game_grid[(i+3)%3][(i+3)%3]!=_ai ):
+                    return (i+3)%3,(i+3)%3
 
 
+                    #.........diagonal 2
+        for i in range(3):
+            if(g_game_grid[0][2]==_user and g_game_grid[2][0]==_user and g_game_grid[1][1]!=_ai ):
+                    return 1,1
+            if(g_game_grid[1][1]==_user and g_game_grid[2][0]==_user and g_game_grid[0][2]!=_ai ):
+                    return 0,2
+            if(g_game_grid[0][2]==_user and g_game_grid[1][1]==_user and g_game_grid[2][0]!=_ai ):
+                    return 2,0
 
+
+
+
+# .......check if user can win in this move..............
+    if(g_menu_level>=1):
+        for i in range(3):
+            for j in range(3):
+                if(g_game_grid[i][(j+1)%3]==_user and g_game_grid[i][(j+2)%3]==_user and g_game_grid[i][(j+3)%3]!=_ai ):
+                    return i,(j+3)%3
+
+        for i in range(3):
+            for j in range(3):
+                if(g_game_grid[(j+1)%3][i]==_user and g_game_grid[(j+2)%3][i]==_user and g_game_grid[(j+3)%3][i]!=_ai ):
+                    return (j+3)%3,i
+
+    #.........diagonal 1
+        for i in range(3):
+            if(g_game_grid[(i+1)%3][(i+1)%3]==_user and g_game_grid[(i+2)%3][(i+2)%3]==_user and g_game_grid[(i+3)%3][(i+3)%3]!=_ai ):
+                    return (i+3)%3,(i+3)%3
+
+
+    #.........diagonal 2
+        for i in range(3):
+            if(g_game_grid[0][2]==_user and g_game_grid[2][0]==_user and g_game_grid[1][1]!=_ai ):
+                    return 1,1
+            if(g_game_grid[1][1]==_user and g_game_grid[2][0]==_user and g_game_grid[0][2]!=_ai ):
+                    return 0,2
+            if(g_game_grid[0][2]==_user and g_game_grid[1][1]==_user and g_game_grid[2][0]!=_ai ):
+                    return 2,0
+
+
+
+
+#...........choose centre if avalaible
+    if(g_menu_level>=2):
+        if g_game_grid[1][1]==-1:
+            return 1,1
 
 
 #.....default case..ai choose  random location ............................
-    if g_game_grid[1][1]==-1:
-        return 1,1
 
-    for i in range(3):
-        for j in range(3):
-            if g_game_grid[i][j]==-1:
-                return i,j
+
+    if(g_menu_level>=0):
+        for i in range(3):
+            for j in range(3):
+                if g_game_grid[i][j]==-1:
+                    return i,j
 
 
 

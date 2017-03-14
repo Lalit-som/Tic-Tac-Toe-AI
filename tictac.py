@@ -2,17 +2,31 @@ from tkinter import *
 import tkinter.messagebox
 import _thread
 import time
+import random
 
 
 
 # Author Lalit Som............
-# github.com/Lalit-som
-
+# github.com/lalitsom
 
 
 
 
 #.......functions...........
+def changePlayer(_var,_menu):
+    global g_player1
+    g_player1 = _var
+    _playas = ["Player 1 RED","Player 2 BLUE"]
+
+    _menu.entryconfigure(0,label=_playas[0])
+    _menu.entryconfigure(1,label=_playas[1])
+
+    _menu.entryconfigure(_var,label=_playas[_var]+"*")
+    player_info.config(text ="You are "+_playas[_var] +"\n\n" )
+    reset_game(0)
+
+
+
 def changeLevel(_var,_menu):
     global g_menu_level
     g_menu_level = _var
@@ -24,8 +38,11 @@ def changeLevel(_var,_menu):
 
 
     _menu.entryconfigure(_var,label=_levels[_var]+"*")
+
     level_info.config(text ="Level : "+_levels[_var] )
     reset_game(0)
+
+
 
 
 
@@ -62,8 +79,7 @@ def motion(event):
 
 def reset_game(event):
     global g_gameEnd
-
-    g_player1 =0 #red one
+    global g_player1
     g_winner =-1
 
     g_gameEnd=0
@@ -74,27 +90,30 @@ def reset_game(event):
 
     bgcanvas.delete("all")
     board_img = bgcanvas.create_image(b_image_pos,b_image_pos,image=object_img_board)
-    g_menu_level = 1
-    g_menu_playas = 0
     guimsg_set_gamewinner("Game is Running...")
+    if(g_player1==1):
+        user_clicked(-5,0)
 
 
 
 
 def user_clicked(_r,_c):
     global g_gameEnd
+    _ai_is_player1 = _r
+    if(_ai_is_player1==-5):
+        _r=0
     if(g_gameEnd==0 and g_game_grid[_r][_c] ==-1 ):
-        g_game_grid[_r][_c] = g_player1
-        put_piece(g_player1,_r,_c,0)
+        if(_ai_is_player1!=-5):
+            g_game_grid[_r][_c] = g_player1
+            put_piece(g_player1,_r,_c,0)
         _stat = check_game_status()
-        print (_stat)
+
         if(_stat==-1):
             _move = runai(g_player1)
             g_game_grid[_move[0]][_move[1]] = int(not(g_player1))
             _thread.start_new_thread( put_piece,(int(not(g_player1)), _move[0],_move[1],0.2))
 
         else:
-            print (check_game_status())
             g_gameEnd = 1
         _stat = check_game_status()
         if(_stat==5):
@@ -111,7 +130,6 @@ def user_clicked(_r,_c):
 
 
 def put_piece(_player,_r,_c,_delay):
-    print(_player,_r,_c)
     time.sleep(_delay)
     if(_player == 0):
         _image = bgcanvas.create_image(img_pos_x +(_c*offset),img_pos_y + (_r*offset),image=object_img_red)
@@ -168,17 +186,17 @@ def runai(_user):
 
                     #.........diagonal 1
         for i in range(3):
-            if(g_game_grid[(i+1)%3][(i+1)%3]==_user and g_game_grid[(i+2)%3][(i+2)%3]==_user and g_game_grid[(i+3)%3][(i+3)%3]!=_ai ):
+            if(g_game_grid[(i+1)%3][(i+1)%3]==_ai and g_game_grid[(i+2)%3][(i+2)%3]==_ai and g_game_grid[(i+3)%3][(i+3)%3]!=_user ):
                     return (i+3)%3,(i+3)%3
 
 
                     #.........diagonal 2
         for i in range(3):
-            if(g_game_grid[0][2]==_user and g_game_grid[2][0]==_user and g_game_grid[1][1]!=_ai ):
+            if(g_game_grid[0][2]==_ai and g_game_grid[2][0]==_ai and g_game_grid[1][1]!=_user ):
                     return 1,1
-            if(g_game_grid[1][1]==_user and g_game_grid[2][0]==_user and g_game_grid[0][2]!=_ai ):
+            if(g_game_grid[1][1]==_ai and g_game_grid[2][0]==_ai and g_game_grid[0][2]!=_user ):
                     return 0,2
-            if(g_game_grid[0][2]==_user and g_game_grid[1][1]==_user and g_game_grid[2][0]!=_ai ):
+            if(g_game_grid[0][2]==_ai and g_game_grid[1][1]==_ai and g_game_grid[2][0]!=_user ):
                     return 2,0
 
 
@@ -213,42 +231,109 @@ def runai(_user):
 
 
 
-
 #...........choose centre if avalaible
-    if(g_menu_level>=2):
+    if(g_menu_level>=1):
         if g_game_grid[1][1]==-1:
             return 1,1
 
 
+
+#.........special case...........only for legendary..........
+    if(g_menu_level>=2):
+        _legendmoves = legend_ai(_user)
+        if(_legendmoves[0]!=-1):
+            return _legendmoves[0],_legendmoves[1]
+        #..........check coners.......
+        if(g_game_grid[0][0]==-1 and g_game_grid[0][1]!=_user and g_game_grid[1][0]!=_user ):
+            return 0,0
+        if(g_game_grid[2][2]==-1 and g_game_grid[1][2]!=_user and g_game_grid[2][1]!=_user ):
+            return 2,2
+        if(g_game_grid[0][2]==-1 and g_game_grid[0][1]!=_user and g_game_grid[1][2]!=_user ):
+            return 0,2
+        if(g_game_grid[2][0]==-1 and g_game_grid[1][0]!=_user and g_game_grid[2][1]!=_user ):
+            return 2,0
+
+        #........check corners again...............
+        if(g_game_grid[0][0]==-1):
+            return 0,0
+        if(g_game_grid[2][2]==-1):
+            return 2,2
+        if(g_game_grid[0][2]==-1):
+            return 0,2
+        if(g_game_grid[2][0]==-1):
+            return 2,0
+
+
 #.....default case..ai choose  random location ............................
 
-
     if(g_menu_level>=0):
-        for i in range(3):
-            for j in range(3):
-                if g_game_grid[i][j]==-1:
-                    return i,j
+        i = random.randint(0,3)
+        j = random.randint(0,3)
+        for i1 in range(3):
+            for j1 in range(3):
+                if g_game_grid[(i+i1)%3][(j+j1)%3]==-1:
+                    return (i+i1)%3,(j+j1)%3
 
 
 
+def legend_ai(_user1):
+    global g_game_grid
+    _ai = int(not _user1)
+    ai_pieces =0
+    user_pieces =0
+    total_pieces = 0
+
+    u_tmpi =-1;    u_tmpj=-1;
+    ai_tmpi =-1;    ai_tmpj=-1;
+    tmpi=-1;    tmpj=-1;
+
+
+    for i in range(3):
+        for j in range(3):
+            if(g_game_grid[i][j]==_ai):
+                ai_pieces = ai_pieces+1;
+                ai_tmpi =i; ai_tmpj =j;
+            elif(g_game_grid[i][j]!=-1):
+                user_pieces = user_pieces+1;
+                u_tmpi =i; u_tmpj =j;
+
+    total_pieces = user_pieces + ai_pieces;
+
+#if ai is first player
+    if(total_pieces%2==0):
+        if(total_pieces==2):
+            #............if user move  on edge then ai will win..............
+            if( (u_tmpi,u_tmpj)==(0,1)  or (u_tmpi,u_tmpj)==(1,2) ):
+                return( (u_tmpi+2)%3, (u_tmpj+1)%3 )
+
+            if(  (u_tmpi,u_tmpj)==(1,0)  or (u_tmpi,u_tmpj)==(2,1)):
+                return( (u_tmpi+1)%3, (u_tmpj+2)%3 )
+
+            #...............if user move on corner............................
+
+            if( u_tmpi==0 and u_tmpj==0):
+                return 2,2
+            if( u_tmpi==2 and u_tmpj==0):
+                return 0,2
+            if( u_tmpi==0 and u_tmpj==2):
+                return 2,0
+            if( u_tmpi==2 and u_tmpj==2):
+                return 0,0
+    if(g_game_grid[1][1]==_ai):            
+        if(total_pieces==3 and g_game_grid[0][1]==-1):
+            return 0,1
+        if(total_pieces==3 and g_game_grid[1][0]==-1):
+            return 1,0
+        if(total_pieces==3 and g_game_grid[1][2]==-1):
+            return 1,2
+        if(total_pieces==3 and g_game_grid[2][1]==-1):
+            return 2,1
 
 
 
-
-
-"""
-_player1 =0 #red one
-_winner =-1
-_gameEnd=0
-_chance=0
-_game_grid = [[-1] *3 for n in range(3)] #initial state
-_menu_level = 1
-_menu_playas = 0
-"""
-
-
-
-
+    print(ai_pieces,user_pieces)
+    print("**")
+    return (-1,-1)
 
 
 
@@ -256,9 +341,9 @@ _menu_playas = 0
 
 mainWnd = Tk()
 mainWnd.wm_title("Tic Tac Toe")
-mainWnd.iconbitmap("icon.ico")
+#mainWnd.iconbitmap("icon.ico")
 
-#mainWnd.wm_attributes('-transparentcolor','pink')
+
 
 #.............toolbar.............
 
@@ -278,9 +363,8 @@ submenu_levels.add_command(label="Legend", command = lambda: changeLevel(2,subme
 
 submenu_player = Menu(menu_bar, tearoff=False)
 menu_bar.add_cascade(label="Play as..",menu=submenu_player)
-submenu_player.add_command(label="*Player 1 X", command = changeLevel);
-submenu_player.add_command(label="Player 2 O", command = changeLevel);
-submenu_player.add_command(label="Random", command = changeLevel);
+submenu_player.add_command(label="Player 1 RED*", command = lambda: changePlayer(0,submenu_player));
+submenu_player.add_command(label="Player 2 BLUE", command = lambda: changePlayer(1,submenu_player));
 
 
 
@@ -307,7 +391,7 @@ level_info.pack();
 
 
 
-player_info = Label(option_frame, text="You are Player X\n\n",bg ="#21252b",fg="#9da5b4", font=("Arial","11"))
+player_info = Label(option_frame, text="You are Player 1 RED\n\n",bg ="#21252b",fg="#9da5b4", font=("Arial","11"))
 player_info.pack();
 
 

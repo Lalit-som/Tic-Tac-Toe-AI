@@ -4,13 +4,8 @@ import _thread
 import time
 import random
 
-
-
 # Author Lalit Som............
 # github.com/lalitsom
-
-
-
 
 #.......functions...........
 def changePlayer(_var,_menu):
@@ -43,7 +38,69 @@ def changeLevel(_var,_menu):
     reset_game(0)
 
 
+def update_aimsg(var):
 
+    default = ["Common I don't have whole day",
+                "It's your move. I'm waiting.....",
+                "Please use your brain and move fast. I have other places to go."]
+
+    draw = ["Keep calm It's a Tie",
+            "It's a Tie. Rematch?",
+            "You just got spared"]
+
+    lost = ["My CPU is not feeling well today. That's why you won.",
+            "It's your lucky day.",
+            "Cheater...",
+            "Do not let this match go to your head.",
+            "Yeah.. you won. so what?"]
+
+    won = ["In your face sucker.",
+            "Now get ready for my slave army you brainless human.",
+            "Go read a book or something. Then come to play with me",
+            "You need practice ..................................................... bitch",
+            "..and I thought you can't identify a fool by his face",
+            "Do not worry, I also have a moron level. just made for people like you",
+            "Go start with moron level, You Moron."]
+
+    compliment = ["Well done..",
+                    "Nice"]
+
+    insult = ["..and I thought you can't identify a fool by his face",
+                "Go read a book or something.Then come to play with me"]
+
+    trapped = ["Get ready to loose",
+                "Go start with moron level, You Moron.",
+                "Do whatever you can do to win this one.",
+                "You got trapped",
+                "Do not get Demotivated, but you are going to loose.",
+                "Do not worry, I also have a moron level. It will suit you better.",
+                "Bad move",
+                "just think before you make mistakes, like this one.",
+                "You can't win this one.",
+                "Now I own this game"]
+
+    blocked=["Not so fast.",
+             "You can't win that easily.",
+             "You sneaky bastard."]
+
+    if(var=="default"):
+        string = default[random.randint(0,len(default)-1)]
+    elif(var=="draw"):
+            string = draw[random.randint(0,len(draw)-1)]
+    elif(var=="lost"):
+            string = lost[random.randint(0,len(lost)-1)]
+    elif(var=="won"):
+            string = won[random.randint(0,len(won)-1)]
+    elif(var=="insult"):
+            string = insult[random.randint(0,len(insult)-1)]
+    elif(var=="compliment"):
+            string = compliment[random.randint(0,len(compliment)-1)]
+    elif(var=="trapped"):
+            string = trapped[random.randint(0,len(trapped)-1)]
+    elif(var=="blocked"):
+            string = blocked[random.randint(0,len(blocked)-1)]
+
+    ai_msg.config(text=string)
 
 
 def guimsg_set_gamewinner(_str):
@@ -52,7 +109,7 @@ def guimsg_set_gamewinner(_str):
 
 
 def showmessage():
-    tkinter.messagebox.showinfo('About Tic Tac Toe','Made by Lalit Som\n version 1.0.0\nHow to play: Go check wikipedia')
+    tkinter.messagebox.showinfo('About Tic Tac Toe','Made by Lalit Som\n version 1.0.0\nHow to play: Go check wikipedia\nFeedback: mail me->  lalitsom27@gmail.com')
 
 
 
@@ -81,7 +138,6 @@ def reset_game(event):
     global g_gameEnd
     global g_player1
     g_winner =-1
-
     g_gameEnd=0
     g_chance=0
     for i in range(3):
@@ -91,6 +147,7 @@ def reset_game(event):
     bgcanvas.delete("all")
     board_img = bgcanvas.create_image(b_image_pos,b_image_pos,image=object_img_board)
     guimsg_set_gamewinner("Game is Running...")
+    update_aimsg("default")
     if(g_player1==1):
         user_clicked(-5,0)
 
@@ -117,11 +174,14 @@ def user_clicked(_r,_c):
             g_gameEnd = 1
         _stat = check_game_status()
         if(_stat==5):
+            update_aimsg("draw")
             guimsg_set_gamewinner("Draw")
         if(_stat==int(not(g_player1))):
+            update_aimsg("won")
             guimsg_set_gamewinner("You Loose.. Bitch")
         if(_stat==g_player1):
-            guimsg_set_gamewinner("YOU win..")
+            update_aimsg("lost")
+            guimsg_set_gamewinner("YOU won..")
 
 
         if(_stat!=-1):
@@ -200,7 +260,7 @@ def runai(_user):
                     return 2,0
 
 
-
+    update_aimsg("blocked")
 
 # .......check if user can win in this move..............
     if(g_menu_level>=1):
@@ -231,6 +291,8 @@ def runai(_user):
 
 
 
+    update_aimsg("default")
+
 #...........choose centre if avalaible
     if(g_menu_level>=1):
         if g_game_grid[1][1]==-1:
@@ -244,6 +306,7 @@ def runai(_user):
         if(_legendmoves[0]!=-1):
             return _legendmoves[0],_legendmoves[1]
         #..........check coners.......
+
         if(g_game_grid[0][0]==-1 and g_game_grid[0][1]!=_user and g_game_grid[1][0]!=_user ):
             return 0,0
         if(g_game_grid[2][2]==-1 and g_game_grid[1][2]!=_user and g_game_grid[2][1]!=_user ):
@@ -252,6 +315,7 @@ def runai(_user):
             return 0,2
         if(g_game_grid[2][0]==-1 and g_game_grid[1][0]!=_user and g_game_grid[2][1]!=_user ):
             return 2,0
+
 
         #........check corners again...............
         if(g_game_grid[0][0]==-1):
@@ -265,6 +329,7 @@ def runai(_user):
 
 
 #.....default case..ai choose  random location ............................
+
 
     if(g_menu_level>=0):
         i = random.randint(0,3)
@@ -303,11 +368,14 @@ def legend_ai(_user1):
     if(total_pieces%2==0):
         if(total_pieces==2):
             #............if user move  on edge then ai will win..............
+            update_aimsg("trapped")
             if( (u_tmpi,u_tmpj)==(0,1)  or (u_tmpi,u_tmpj)==(1,2) ):
                 return( (u_tmpi+2)%3, (u_tmpj+1)%3 )
 
             if(  (u_tmpi,u_tmpj)==(1,0)  or (u_tmpi,u_tmpj)==(2,1)):
                 return( (u_tmpi+1)%3, (u_tmpj+2)%3 )
+
+            update_aimsg("insult")
 
             #...............if user move on corner............................
 
@@ -319,7 +387,7 @@ def legend_ai(_user1):
                 return 2,0
             if( u_tmpi==2 and u_tmpj==2):
                 return 0,0
-    if(g_game_grid[1][1]==_ai):            
+    if(g_game_grid[1][1]==_ai):
         if(total_pieces==3 and g_game_grid[0][1]==-1):
             return 0,1
         if(total_pieces==3 and g_game_grid[1][0]==-1):
@@ -389,13 +457,11 @@ restart_btn.bind('<Button-1>', reset_game)
 level_info = Label(option_frame, text="Level : Moron",bg ="#21252b",fg="#9da5b4", font=("Arial","11"),pady=15)
 level_info.pack();
 
-
-
 player_info = Label(option_frame, text="You are Player 1 RED\n\n",bg ="#21252b",fg="#9da5b4", font=("Arial","11"))
 player_info.pack();
 
 
-ai_msg = Label(option_frame, text="Hey!\n Wanna Play? \n",bg ="#21252b",fg="#4285fa", font=("Arial","11"))
+ai_msg = Label(option_frame, text="It's your move. I'm waiting.......",bg ="#21252b",fg="#4285fa", font=("Arial","11"),wraplength="150")
 ai_msg.pack();
 
 

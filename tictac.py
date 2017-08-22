@@ -152,8 +152,6 @@ def reset_game(event):
         user_clicked(-5,0)
 
 
-
-
 def user_clicked(_r,_c):
     global g_gameEnd
     _ai_is_player1 = _r
@@ -163,7 +161,8 @@ def user_clicked(_r,_c):
         if(_ai_is_player1!=-5):
             g_game_grid[_r][_c] = g_player1
             put_piece(g_player1,_r,_c,0)
-        _stat = check_game_status()
+
+        _stat = check_game_status(return_list(g_game_grid))
 
         if(_stat==-1):
             _move = runai(g_player1)
@@ -172,7 +171,8 @@ def user_clicked(_r,_c):
 
         else:
             g_gameEnd = 1
-        _stat = check_game_status()
+
+        _stat = check_game_status(return_list(g_game_grid))
         if(_stat==5):
             update_aimsg("draw")
             guimsg_set_gamewinner("Draw")
@@ -187,6 +187,13 @@ def user_clicked(_r,_c):
         if(_stat!=-1):
             g_gameEnd=1
 
+def return_list(_mainlist):
+    _tmplist = [[-1] *3 for n in range(3)]
+    for i in range(3):
+        for j in range(3):
+            _tmplist[i][j] = _mainlist[i][j]
+
+    return _tmplist
 
 
 def put_piece(_player,_r,_c,_delay):
@@ -198,26 +205,30 @@ def put_piece(_player,_r,_c,_delay):
 
 
 
-def check_game_status():
+def check_game_status(_tmp_g_game_grid):
+    #print(g_game_grid)
+    #print(_tmp_g_game_grid)
 
     for i in range(3):
-        if( g_game_grid[i][0] == g_game_grid[i][1] and g_game_grid[i][1] == g_game_grid[i][2] and g_game_grid[i][2] != -1  ):
-            return g_game_grid[i][2]
+        if( _tmp_g_game_grid[i][0] == _tmp_g_game_grid[i][1] and _tmp_g_game_grid[i][1] == _tmp_g_game_grid[i][2] and _tmp_g_game_grid[i][2] != -1  ):
+            return _tmp_g_game_grid[i][2]
 
     for i in range(3):
-        if( g_game_grid[0][i] == g_game_grid[1][i] and g_game_grid[1][i] == g_game_grid[2][i] and g_game_grid[2][i] != -1  ):
-            return g_game_grid[2][i]
+        if( _tmp_g_game_grid[0][i] == _tmp_g_game_grid[1][i] and _tmp_g_game_grid[1][i] == _tmp_g_game_grid[2][i] and _tmp_g_game_grid[2][i] != -1  ):
+            return _tmp_g_game_grid[2][i]
 
-    if( g_game_grid[0][0] == g_game_grid[1][1] and g_game_grid[1][1] == g_game_grid[2][2] and g_game_grid[2][2] != -1  ):
-        return g_game_grid[2][2]
+    if( _tmp_g_game_grid[0][0] == _tmp_g_game_grid[1][1] and _tmp_g_game_grid[1][1] == _tmp_g_game_grid[2][2] and _tmp_g_game_grid[2][2] != -1  ):
+        return _tmp_g_game_grid[2][2]
 
-    if( g_game_grid[0][2] == g_game_grid[1][1] and g_game_grid[1][1] == g_game_grid[2][0] and g_game_grid[2][0] != -1  ):
-        return g_game_grid[2][0]
+    if( _tmp_g_game_grid[0][2] == _tmp_g_game_grid[1][1] and _tmp_g_game_grid[1][1] == _tmp_g_game_grid[2][0] and _tmp_g_game_grid[2][0] != -1  ):
+        return _tmp_g_game_grid[2][0]
 #.......................draw...............
+
     for i in range(3):
         for j in range(3):
-            if(g_game_grid[i][j]==-1):
+            if(_tmp_g_game_grid[i][j]==-1):
                 return -1
+
     return 5
 
 
@@ -226,6 +237,15 @@ def check_game_status():
 def runai(_user):
     global g_game_grid
     _ai = int(not _user)
+
+
+#.........special case...........only for legendary..........
+    if(g_menu_level>=2):
+        _legendmoves = legend_ai(return_list(g_game_grid), _user,1)
+        if(_legendmoves[0]!=-1):
+            print("legend is at work",_legendmoves)
+            return _legendmoves[0],_legendmoves[1]
+
 
 #..........check if I can Win in this move
     if(g_menu_level>=0):
@@ -300,34 +320,6 @@ def runai(_user):
 
 
 
-#.........special case...........only for legendary..........
-    if(g_menu_level>=2):
-        _legendmoves = legend_ai(_user)
-        if(_legendmoves[0]!=-1):
-            return _legendmoves[0],_legendmoves[1]
-        #..........check coners.......
-
-        if(g_game_grid[0][0]==-1 and g_game_grid[0][1]!=_user and g_game_grid[1][0]!=_user ):
-            return 0,0
-        if(g_game_grid[2][2]==-1 and g_game_grid[1][2]!=_user and g_game_grid[2][1]!=_user ):
-            return 2,2
-        if(g_game_grid[0][2]==-1 and g_game_grid[0][1]!=_user and g_game_grid[1][2]!=_user ):
-            return 0,2
-        if(g_game_grid[2][0]==-1 and g_game_grid[1][0]!=_user and g_game_grid[2][1]!=_user ):
-            return 2,0
-
-
-        #........check corners again...............
-        if(g_game_grid[0][0]==-1):
-            return 0,0
-        if(g_game_grid[2][2]==-1):
-            return 2,2
-        if(g_game_grid[0][2]==-1):
-            return 0,2
-        if(g_game_grid[2][0]==-1):
-            return 2,0
-
-
 #.....default case..ai choose  random location ............................
 
 
@@ -340,69 +332,70 @@ def runai(_user):
                     return (i+i1)%3,(j+j1)%3
 
 
+#.......MIN mAX Algo.................................
+def legend_ai(_local_grid, _opponent, _chance):
+    if(_local_grid[1][1]==-1):
+        return 1,1
+    _min = 100000; _i_max =1; _j_max=1;
+    for _i1 in range(3):
+        for _j1 in range(3):
+            if(_local_grid[_i1][_j1]==-1):
+                _tmp = min_max_search( return_list(_local_grid), _i1,_j1,_opponent,_chance,0)
+                _total = _tmp[0] + _tmp[1] + _tmp[2]
+                if(_total!=0):
+                    print(_tmp,_i1,_j1,_total,(_tmp[2]*100)/_total)
+                    if( (_tmp[2]*100)/_total< _min ):
+                        _min = (_tmp[2]*100)/_total
+                        _i_max= _i1
+                        _j_max = _j1
 
-def legend_ai(_user1):
-    global g_game_grid
-    _ai = int(not _user1)
-    ai_pieces =0
-    user_pieces =0
-    total_pieces = 0
+    return _i_max,_j_max
 
-    u_tmpi =-1;    u_tmpj=-1;
-    ai_tmpi =-1;    ai_tmpj=-1;
-    tmpi=-1;    tmpj=-1;
+def min_max_search(_local_grid, i1_,j1_, _opponent, _chance,_lvl):
+    #return won,draw,lost
+    #if(_lvl>1):
+        #return 0
+    _ai = int(not _opponent)
 
+#if ai wins return 1
+    if(_chance==1):
+        _local_grid[i1_][j1_] = _ai
+        for i in range(3):
+            for j in range(3):
+                if (_local_grid[i][j]==-1):
+                    tmp = return_list(_local_grid)
+                    tmp[i][j] = _opponent
+                    _stat = check_game_status(return_list(tmp))
+                    if(_stat == _opponent):
+                        return 0,0,1
+    else:
+        #if opponent wins return -1
+        _local_grid[i1_][j1_] = _opponent
+        for i in range(3):
+            for j in range(3):
+                if (_local_grid[i][j]==-1):
+                    tmp = return_list(_local_grid)
+                    tmp[i][j] = _ai
+                    _stat = check_game_status(return_list(tmp))
+                    if(_stat == _ai):
+                        return 1,0,0
 
+    _stat = check_game_status(return_list(_local_grid))
+    if(_stat == 5):                 #if grid is full and draw return 0
+        return 0,1,0
+
+    _sum =[0,0,0]
+    #print("what agin")
     for i in range(3):
         for j in range(3):
-            if(g_game_grid[i][j]==_ai):
-                ai_pieces = ai_pieces+1;
-                ai_tmpi =i; ai_tmpj =j;
-            elif(g_game_grid[i][j]!=-1):
-                user_pieces = user_pieces+1;
-                u_tmpi =i; u_tmpj =j;
+            if(_local_grid[i][j]==-1):
+                _tmp= min_max_search(return_list(_local_grid), i, j,_opponent,int(not _chance),_lvl+1)
+                _sum[0]+=_tmp[0]
+                _sum[1]+=_tmp[1]
+                _sum[2]+=_tmp[2]
+                #print("new ",_tmp,_local_grid,i,j,_lvl)
 
-    total_pieces = user_pieces + ai_pieces;
-
-#if ai is first player
-    if(total_pieces%2==0):
-        if(total_pieces==2):
-            #............if user move  on edge then ai will win..............
-            update_aimsg("trapped")
-            if( (u_tmpi,u_tmpj)==(0,1)  or (u_tmpi,u_tmpj)==(1,2) ):
-                return( (u_tmpi+2)%3, (u_tmpj+1)%3 )
-
-            if(  (u_tmpi,u_tmpj)==(1,0)  or (u_tmpi,u_tmpj)==(2,1)):
-                return( (u_tmpi+1)%3, (u_tmpj+2)%3 )
-
-            update_aimsg("insult")
-
-            #...............if user move on corner............................
-
-            if( u_tmpi==0 and u_tmpj==0):
-                return 2,2
-            if( u_tmpi==2 and u_tmpj==0):
-                return 0,2
-            if( u_tmpi==0 and u_tmpj==2):
-                return 2,0
-            if( u_tmpi==2 and u_tmpj==2):
-                return 0,0
-    if(g_game_grid[1][1]==_ai):
-        if(total_pieces==3 and g_game_grid[0][1]==-1):
-            return 0,1
-        if(total_pieces==3 and g_game_grid[1][0]==-1):
-            return 1,0
-        if(total_pieces==3 and g_game_grid[1][2]==-1):
-            return 1,2
-        if(total_pieces==3 and g_game_grid[2][1]==-1):
-            return 2,1
-
-
-
-    print(ai_pieces,user_pieces)
-    print("**")
-    return (-1,-1)
-
+    return _sum
 
 
 #...........main window...........

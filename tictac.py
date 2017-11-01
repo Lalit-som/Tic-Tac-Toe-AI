@@ -57,7 +57,7 @@ def update_aimsg(var):
     won = ["In your face sucker.",
             "Now get ready for my slave army you brainless human.",
             "Go read a book or something. Then come to play with me",
-            "You need practice ..................................................... bitch",
+            "You need practice ..................................................... ",
             "..and I thought you can't identify a fool by his face",
             "Do not worry, I also have a moron level. just made for people like you",
             "Go start with moron level, You Moron."]

@@ -3,9 +3,11 @@
 A simple Game in Python (Tkinter)
 
 Just want to play the game.
-Download Standalone Executable(https://github.com/lalitsom/Tic-Tac-Toe-AI)
+
+Download [Standalone Executable](https://github.com/lalitsom/Tic-Tac-Toe-AI)
 
 Wants to play and modify
+
 Install python 3.7.4
 Run tictac.py with it.
 

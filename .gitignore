@@ -1,0 +1,4 @@
+# folders to not track
+__pycache__/
+build/
+dist/

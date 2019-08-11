@@ -3,11 +3,26 @@ import tkinter.messagebox
 import _thread
 import time
 import random
+import os
 
 # Author Lalit Som............
 # github.com/lalitsom
 
 #.......functions...........
+def getAbsoluteResourcePath(relativePath):
+    try:
+        # PyInstaller stores data files in a tmp folder refered to as _MEIPASS
+        basePath = sys._MEIPASS
+    except Exception:
+        basePath = '';
+
+    path = os.path.join(basePath, relativePath);
+	# If the path still doesn't exist, this function won't help you
+    if not os.path.exists(path):
+        return None
+
+    return path
+
 def changePlayer(_var,_menu):
     global g_player1
     g_player1 = _var
@@ -477,13 +492,13 @@ bgcanvas.pack()
 bgcanvas.bind('<Button-1>', motion)
 
 #.............background_image.............
-object_img_board = PhotoImage(file="tictactoeboard.png")
+object_img_board = PhotoImage(file=getAbsoluteResourcePath("tictactoeboard.png"))
 b_image_pos = canvas_size/2
 board_img = bgcanvas.create_image(b_image_pos,b_image_pos,image=object_img_board)
 #.............objects on board.............
 
-object_img_red = PhotoImage(file="red.png")
-object_img_blue = PhotoImage(file="blue.png")
+object_img_red = PhotoImage(file=getAbsoluteResourcePath("red.png"))
+object_img_blue = PhotoImage(file=getAbsoluteResourcePath("blue.png"))
 
 img_pos_x =100
 img_pos_y=100
